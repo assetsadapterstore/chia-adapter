@@ -1,0 +1,17 @@
+*.db
+release
+.vscode
+.idea
+*.key
+*.ini
+go.sum
+api_in_test.go
+api_test.go
+.devcontainer.json
+Dockerfile
+address_decode_test.go
+blockscanner_test.go
+manager_test.go
+tools_test.go
+openwtester
+LICENSE
