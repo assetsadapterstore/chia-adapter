@@ -49,10 +49,9 @@ func (dec *AddressDecoderV2) AddressEncode(hash []byte, opts ...interface{}) (st
 
 // AddressVerify 地址校验
 func (dec *AddressDecoderV2) AddressVerify(address string, opts ...interface{}) bool {
-	//_, err := cfxaddress.NewFromBase32(address)
-	//if err != nil {
-	//	return false
-	//}
-
+	_,err := EncodePuzzleHashErr(address,dec.wm.Config.Prefix)
+	if err != nil{
+		return false
+	}
 	return true
 }

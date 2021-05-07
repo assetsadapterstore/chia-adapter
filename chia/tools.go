@@ -27,6 +27,17 @@ func EncodePuzzleHash(addr string, prefix string) string {
 	return puzzleHash
 }
 
+func EncodePuzzleHashErr(addr string, prefix string) (string,error) {
+	//addr = strings.TrimPrefix(addr, "0x")
+	hash, err := addressEncoder.AddressDecode(addr, XCH_testnetAddress)
+	if err != nil{
+		return "",err
+	}
+	puzzleHash := hex.EncodeToString(hash)
+	puzzleHash = "0x" + puzzleHash
+	return puzzleHash,nil
+}
+
 //
 //func DecodePuzzleHash( addr string) string{
 //	addr = strings.TrimPrefix(addr, "0x")
