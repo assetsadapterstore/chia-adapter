@@ -221,8 +221,6 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 		return nil, err
 	}
 
-
-
 	rawTrans := &RawTrans{}
 	err = json.Unmarshal(rawHex, rawTrans)
 	if err != nil {
@@ -235,11 +233,10 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 	sendTrans.Bundle = bundle
 	toMap := rawTx.To
 	targetTo := ""
-	for address,_ := range toMap{
+	for address, _ := range toMap {
 		targetTo = address
 	}
-	targetPuzzle := EncodePuzzleHash(targetTo,decoder.wm.Config.Prefix)
-
+	targetPuzzle := EncodePuzzleHash(targetTo, decoder.wm.Config.Prefix)
 
 	//完成以上操作最终才进行提交
 	_, err = decoder.wm.WalletClient.PutTx(sendTrans)
@@ -247,17 +244,16 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 		return nil, err
 	}
 
-
-	memCoins,err := decoder.wm.WalletClient.GetMempoolByTxID(rawTrans.TxID)
+	memCoins, err := decoder.wm.WalletClient.GetMempoolByTxID(rawTrans.TxID)
 	if err != nil {
 		return nil, errors.New("submitRawTransaction error3,json error")
 	}
 	//把目标源的coinID填充进去
-	for _,coin := range memCoins{
-		if coin.PuzzleHash== targetPuzzle{
-			newCoin,err := decoder.wm.WalletClientIn.GetCoinID(coin)
-			if err != nil{
-				return nil, errors.New(" Submit err,GetCoinID error, error:"+err.Error())
+	for _, coin := range memCoins {
+		if coin.PuzzleHash == targetPuzzle {
+			newCoin, err := decoder.wm.WalletClientIn.GetCoinID(coin)
+			if err != nil {
+				return nil, errors.New(" Submit err,GetCoinID error, error:" + err.Error())
 			}
 			rawTx.TxID = newCoin.CoinID
 			break
@@ -267,7 +263,6 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 	rawTx.IsSubmit = true
 	decimals := int32(decoder.wm.Decimal())
 	fees := rawTx.Fees
-
 
 	//记录一个交易单
 	owtx := &openwallet.Transaction{
@@ -284,10 +279,9 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 	}
 	owtx.WxID = openwallet.GenTransactionWxID(owtx)
 
-
 	blockScanner := decoder.wm.Blockscanner.(*BlockScanner)
 	err = blockScanner.SaveTransaction(owtx)
-	if err != nil{
+	if err != nil {
 		decoder.wm.Log.Error("SaveTransaction failed, err:", err)
 	}
 	return owtx, nil
@@ -400,8 +394,10 @@ func (decoder *XchTransactionDecoder) CreateSimpleSummaryRawTransaction(wrapper 
 		singleAmount := decimal.Zero
 		//检查余额是否超过最低转账
 		addrBalance_BI := common.StringNumToBigIntWithExp(addrBalance.Balance, decoder.wm.Decimal())
-
 		if addrBalance_BI.Cmp(minTransfer) < 0 {
+			continue
+		}
+		if addrBalance_BI.Uint64() == 0 {
 			continue
 		}
 
@@ -429,14 +425,10 @@ func (decoder *XchTransactionDecoder) CreateSimpleSummaryRawTransaction(wrapper 
 		thisFrom := fmt.Sprintf("%s:%s", addrBalance.Address, singleAmount.String())
 		from = append(from, thisFrom)
 		decoder.wm.Log.Debugf("address: %v", addrBalance.Address)
+		if singleAmount.String() == "0" {
+			decoder.wm.Log.Debugf("sumAmount: %v", singleAmount)
+		}
 		decoder.wm.Log.Debugf("sumAmount: %v", singleAmount)
-
-	}
-	for _,v := range coinRecordList{
-		coin,_ := decoder.wm.WalletClientIn.GetCoinID(v.Coin)
-		fmt.Println("coin:",coin.CoinID)
-		//fmt.Println("par:",v.Coin.ParentCoinInfo)
-		//fmt.Println("amount:",v.Coin.Amount)
 
 	}
 	fee := decoder.wm.Config.SummaryFee

@@ -68,7 +68,7 @@ func (wm *WalletManager) LoadAssetsConfig(c config.Configer) error {
 	wm.Config.DataDir = c.String("dataDir")
 	wm.Config.MaxUnSpentCount, _ = c.Int64("MaxUnSpentCount")
 	if wm.Config.MaxUnSpentCount == 0{
-		wm.Config.MaxUnSpentCount = 200
+		wm.Config.MaxUnSpentCount = 300
 	}
 	wm.Config.Prefix = "xch"
 	Prefix := c.String("Prefix")
