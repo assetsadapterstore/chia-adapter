@@ -88,14 +88,16 @@ func (wm *WalletManager) LoadAssetsConfig(c config.Configer) error {
 		wm.Config.SummaryFee = SummaryFee
 	}
 
+	//数据文件夹
+	wm.Config.makeDataDir()
+
 	client := &Client{BaseURL: wm.Config.ServerAPI, Debug: false,APICrtPrivateKey:wm.Config.APICrtPrivateKey,APIKeyPrivateKey:wm.Config.APIKeyPrivateKey,Prefix:wm.Config.Prefix}
 	clientIn := &ClientIn{BaseURL: wm.Config.ServerAPIIn, Debug: false,APIInCrtPrivateKey:wm.Config.APIInCrtPrivateKey,APIInKeyPrivateKey:wm.Config.APIInKeyPrivateKey,Prefix:wm.Config.Prefix}
 	wm.WalletClient = client
 	wm.WalletClientIn = clientIn
 
 
-	//数据文件夹
-	wm.Config.makeDataDir()
+
 
 	chainID, err := c.Int64("chainID")
 	if err != nil {

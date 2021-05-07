@@ -8,19 +8,18 @@ import (
 	"strings"
 )
 
-var XCH_testnetAddress = addressEncoder.AddressType{"bech32m", addressEncoder.XCHBech32Alphabet, "txch", "", 32, nil, nil}
 
 func DecodePuzzleHash(addr string, prefix string) string {
 	addr = strings.TrimPrefix(addr, "0x")
 	hash, _ := hex.DecodeString(addr)
-	address := addressEncoder.AddressEncode(hash, XCH_testnetAddress)
+	address := addressEncoder.AddressEncode(hash, addressEncoder.AddressType{"bech32m", addressEncoder.XCHBech32Alphabet, prefix, "", 32, nil, nil})
 
 	return address
 }
 
 func EncodePuzzleHash(addr string, prefix string) string {
 	//addr = strings.TrimPrefix(addr, "0x")
-	hash, _ := addressEncoder.AddressDecode(addr, XCH_testnetAddress)
+	hash, _ := addressEncoder.AddressDecode(addr,  addressEncoder.AddressType{"bech32m", addressEncoder.XCHBech32Alphabet, prefix, "", 32, nil, nil})
 
 	puzzleHash := hex.EncodeToString(hash)
 	puzzleHash = "0x" + puzzleHash
@@ -29,7 +28,7 @@ func EncodePuzzleHash(addr string, prefix string) string {
 
 func EncodePuzzleHashErr(addr string, prefix string) (string,error) {
 	//addr = strings.TrimPrefix(addr, "0x")
-	hash, err := addressEncoder.AddressDecode(addr, XCH_testnetAddress)
+	hash, err := addressEncoder.AddressDecode(addr,  addressEncoder.AddressType{"bech32m", addressEncoder.XCHBech32Alphabet, prefix, "", 32, nil, nil})
 	if err != nil{
 		return "",err
 	}
@@ -38,24 +37,7 @@ func EncodePuzzleHashErr(addr string, prefix string) (string,error) {
 	return puzzleHash,nil
 }
 
-//
-//func DecodePuzzleHash( addr string) string{
-//	addr = strings.TrimPrefix(addr, "0x")
-//	hash, _ := hex.DecodeString(addr)
-//	address := addressEncoder.AddressEncode(hash,addressEncoder.XCH_mainnetAddress)
-//
-//	return address
-//}
-//
-//
-//func EncodePuzzleHash( addr string) string{
-//	hash,_ := addressEncoder.AddressDecode(addr,addressEncoder.XCH_mainnetAddress)
-//
-//	puzzleHash := hex.EncodeToString(hash)
-//	puzzleHash = "0x"+puzzleHash
-//	return puzzleHash
-//}
-//
+
 
 const GROUP_ORDER = "73EDA753299D7D483339D80809A1D80553BDA402FFFE5BFEFFFFFFFF00000001"
 const DEFAULT_HIDDEN_PUZZLE_HASH = "711d6c4e32c92e53179b199484cf8c897542bc57f2b22582799f9d657eec4699"
