@@ -216,8 +216,6 @@ func (c *Client) GetBalanceUnspentByAddresses(address []string) (decimal.Decimal
 		}
 		balances[p] = balance
 	}
-
-
 	unspent, err := c.GetCoinRecordsByPuzzleHashes(puzzleHash, false)
 	if err != nil {
 		return decimal.Zero,balances, errors.New("GetBalanceUnspentByAddresses error:" + err.Error())
