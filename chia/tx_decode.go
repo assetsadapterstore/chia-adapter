@@ -277,6 +277,9 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 		SubmitTime: time.Now().Unix(),
 		TxType:     0,
 	}
+
+	json ,_ := json.Marshal(owtx)
+	decoder.wm.Log.Errorf("Submit owtx is, err=%v", string(json))
 	owtx.WxID = openwallet.GenTransactionWxID(owtx)
 
 	blockScanner := decoder.wm.Blockscanner.(*BlockScanner)
