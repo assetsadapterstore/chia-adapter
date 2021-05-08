@@ -503,6 +503,9 @@ func (bs *BlockScanner) GetBalanceByAddress(address ...string) ([]*openwallet.Ba
 
 	balances := make([]*openwallet.Balance, 0)
 
+
+	bs.wm.Log.Warn("Get Transaction. current to:%v",address[0])
+
 	_, resultBalance, err := bs.wm.WalletClient.GetBalanceUnspentByAddresses(address)
 	if err != nil {
 		return nil, err
