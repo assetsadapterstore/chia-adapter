@@ -29,8 +29,8 @@ func NewAddressDecoderV2( wm *WalletManager) *AddressDecoderV2 {
 //AddressDecode 地址解析
 func (dec *AddressDecoderV2) AddressDecode(addr string, opts ...interface{}) ([]byte, error) {
 
-	puzzleHash := EncodePuzzleHash(addr,dec.wm.Config.Prefix)
-	return []byte(puzzleHash), nil
+	//puzzleHash := EncodePuzzleHash(addr,dec.wm.Config.Prefix)
+	return []byte(addr), nil
 
 }
 
