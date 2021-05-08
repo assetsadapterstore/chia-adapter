@@ -248,7 +248,6 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 		targetTo = address
 		break
 	}
-	decoder.wm.Log.Errorf("targetTo, err=%v", string(targetTo))
 
 	targetPuzzle := EncodePuzzleHash(targetTo, decoder.wm.Config.Prefix)
 
