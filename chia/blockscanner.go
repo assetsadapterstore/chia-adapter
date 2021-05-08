@@ -801,6 +801,8 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 					//Reason:      reason,
 					TxType: txType,
 				}
+				wxID := openwallet.GenTransactionWxID(txMain)
+				txMain.WxID = wxID
 				ed := txExtractMap[targetResult2.SourceKey]
 				if ed == nil {
 					ed = openwallet.NewBlockExtractData()
