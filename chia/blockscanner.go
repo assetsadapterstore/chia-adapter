@@ -305,9 +305,9 @@ func (bs *BlockScanner) ScanBlockTask() {
 	}
 
 	//重扫前N个块，为保证记录找到
-	for i := curBlockHeight - bs.RescanLastBlockCount; i <= curBlockHeight; i++ {
-		bs.scanBlock(i)
-	}
+	//for i := curBlockHeight - bs.RescanLastBlockCount; i <= curBlockHeight; i++ {
+	//	bs.scanBlock(i)
+	//}
 
 	bs.RescanFailedRecord()
 }
@@ -431,7 +431,7 @@ func (bs *BlockScanner) BatchExtractTransaction(height uint64, txs *BlockTrans) 
 			//shouldDone++
 			go func(mTx *CoinRecord, end chan struct{}, mProducer chan<- ExtractResult) {
 				mTx.FilterFunc = bs.ScanTargetFuncV2
-				mTx.ConfirmedBlockIndex = height
+				//mTx.ConfirmedBlockIndex = height
 
 				//导出提出的交易
 				mProducer <- bs.ExtractTransaction(mTx)

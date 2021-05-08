@@ -52,7 +52,7 @@ func (c *Client) GetLastBlock() (uint64, error) {
 	if result == nil || !result.Get("blockchain_state").Exists() || !result.Get("blockchain_state").Get("peak").Exists() {
 		return 0, errors.New("get_blockchain_state get error")
 	}
-	height := result.Get("blockchain_state").Get("peak").Get("height").Uint()
+	height := result.Get("blockchain_state").Get("peak").Get("height").Uint() - 1  //总是获取前一个高度
 	return height, err
 
 }
