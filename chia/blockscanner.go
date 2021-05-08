@@ -64,7 +64,7 @@ func NewBlockScanner(wm *WalletManager) *BlockScanner {
 	bs.extractingCH = make(chan struct{}, MAX_EXTRACTING_SIZE)
 	bs.wm = wm
 	bs.IsScanMemPool = false
-	bs.RescanLastBlockCount = 0
+	bs.RescanLastBlockCount = 2
 
 	//设置扫描任务
 	bs.SetTask(bs.ScanBlockTask)
@@ -304,7 +304,34 @@ func (bs *BlockScanner) ScanBlockTask() {
 
 	}
 
+	//重扫前N个块，为保证记录找到
+	for i := curBlockHeight - bs.RescanLastBlockCount; i <= curBlockHeight; i++ {
+		bs.scanBlock(i)
+	}
+
 	bs.RescanFailedRecord()
+}
+
+
+func (bs *BlockScanner) scanBlock(height uint64)  error {
+
+	curBlock, err := bs.wm.WalletClient.GetBlockByHeight(height)
+	if err != nil {
+		bs.wm.Log.Errorf("XchGetBlockSpecByBlockNum failed, err = %v", err)
+		return err
+	}
+	blockTrans, err := bs.wm.WalletClient.GetAdditionsAndRemovals(curBlock.BlockHash)
+	if err != nil {
+		bs.wm.Log.Errorf("block scanner can not GetAdditionsAndRemovals; unexpected error: %v", err)
+		return err
+	}
+	err = bs.BatchExtractTransaction(height, blockTrans)
+	if err != nil {
+		bs.wm.Log.Errorf("BatchExtractTransaction failed, err = %v", err)
+		return err
+	}
+
+	return  nil
 }
 
 //newExtractDataNotify 发送通知
