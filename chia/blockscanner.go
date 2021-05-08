@@ -657,9 +657,9 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 			return txExtractMap
 		}
 
-		isWithdraw := false
+		//isWithdraw := false
 
-
+		from = newCoin.CoinID
 
 		scanType := openwallet.ScanTargetTypeAccountAddress
 		targetResult2 := tx.FilterFunc(openwallet.ScanTargetParam{
@@ -670,7 +670,7 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 		// 直接判断是否本地缓存数据
 		transactions, err := bs.GetTransaction(newCoin.CoinID)
 		if err == nil {
-			isWithdraw = true
+			//isWithdraw = true
 			if len(transactions) > 0 {
 				tran := transactions[0]
 				tx.Coin = newCoin
@@ -688,9 +688,11 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 					if len(addresses) != 2{
 						bs.wm.Log.Error("addresses input from or to is nil:%s",v)
 					}
+
 					intput := &openwallet.TxInput{}
 					intput.TxID = tx.Coin.CoinID
 					intput.Address = addresses[0]
+					from = intput.Address
 					intput.Amount = addresses[1]
 					intput.Coin = coin
 					intput.Index = uint64(i)
@@ -700,6 +702,27 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 					intput.BlockHash = tx.BlockHash
 					intput.TxType = 2
 					edInput.TxInputs = append(edInput.TxInputs, intput)
+					//寻找找零地址
+					for i2,v2 := range tran.To{
+						addressesTo := strings.Split(v2,":")
+						if len(addressesTo) != 2{
+							bs.wm.Log.Error("addressesTo input from or to is nil:%s",v)
+						}
+						if addresses[0] == addressesTo[0]{
+							output := &openwallet.TxOutPut{}
+							output.TxID = newCoin.CoinID
+							output.Address = addressesTo[0]
+							output.Amount = addressesTo[1]
+							output.Coin = coin
+							output.Index = uint64(i)
+							output.Sid = openwallet.GenTxInputSID(tx.Coin.CoinID, bs.wm.Symbol(), "", uint64(i2))
+							output.CreateAt = nowUnix
+							output.BlockHeight = tx.ConfirmedBlockIndex
+							output.BlockHash = tx.BlockHash
+							output.TxType = txType
+							edInput.TxOutputs = append(edInput.TxOutputs, output)
+						}
+					}
 				}
 
 
@@ -743,15 +766,11 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 				txMain.WxID = wxIDIn
 				txExtractMap[tran.AccountID] = edInput
 				txExtractMap[tran.AccountID].Transaction = txMain
-				if targetResult2.Exist {
-					txExtractMap[targetResult2.SourceKey] = edOutput
-					txExtractMap[targetResult2.SourceKey].Transaction = txMain
-				}
 
 			}
 
-		}else{
-			if targetResult2.Exist {
+		}
+		if targetResult2.Exist {
 
 				tx.Coin = newCoin
 				output := &openwallet.TxOutPut{}
@@ -765,7 +784,7 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 				output.BlockHeight = tx.ConfirmedBlockIndex
 				output.BlockHash = tx.BlockHash
 				output.TxType = txType
-				from = newCoin.CoinID
+
 
 
 				txMain := &openwallet.Transaction{
@@ -788,21 +807,11 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 					ed = openwallet.NewBlockExtractData()
 					txExtractMap[targetResult2.SourceKey] = ed
 				}
-
+				txExtractMap[targetResult2.SourceKey].Transaction = txMain
 				ed.TxOutputs = append(ed.TxOutputs, output)
 
-				wxID := openwallet.GenTransactionWxID(txMain)
-				txMain.WxID = wxID
-				txExtractMap[targetResult2.SourceKey].Transaction = txMain
-				if isWithdraw{
-					ed := txExtractMap[targetResult2.SourceKey]
-					if ed == nil {
-						ed = openwallet.NewBlockExtractData()
-						txExtractMap[targetResult2.SourceKey] = ed
-					}
-				}
 			}
-		}
+
 
 	}
 

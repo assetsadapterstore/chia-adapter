@@ -227,6 +227,17 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 		return nil, errors.New("get_coin_records_by_puzzle_hash error2,json error")
 	}
 
+
+
+	//获取属于我创建的地址
+	addMap := make(map[string]string)
+	if len(rawTrans.Address) >0 {
+		for _,a := range rawTrans.Address{
+			addMap[a] = a
+		}
+	}
+
+
 	bundle := rawTrans.Bundle
 	bundle.Signature = sig
 	sendTrans := &SendTrans{}
@@ -253,6 +264,7 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 	}
 
 	rawTx.TxTo = make([]string,0)
+	feeTotal := decimal.Zero
 	//把目标源的coinID填充进去
 	for _, coin := range outputs {
 
@@ -265,22 +277,27 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 			rawTx.TxID = newCoin.CoinID
 		}
 		address := DecodePuzzleHash(coin.PuzzleHash,decoder.wm.Config.Prefix)
-		amount,_ := decimal.NewFromString(coin.Amount.String())
-		rawTx.TxTo = append(rawTx.TxTo,fmt.Sprintf("%s:%s", address, amount))
-
+		if _,ok  := addMap[address];ok{
+			amount,_ := decimal.NewFromString(coin.Amount.String())
+			feeTotal = feeTotal.Sub(amount)
+			rawTx.TxTo = append(rawTx.TxTo,fmt.Sprintf("%s:%s", address, amount))
+		}
 
 	}
 	rawTx.TxFrom = make([]string,0)
 	for _, coin := range intpus{
 		address := DecodePuzzleHash(coin.PuzzleHash,decoder.wm.Config.Prefix)
-		amount,_ := decimal.NewFromString(coin.Amount.String())
-		rawTx.TxFrom = append(rawTx.TxFrom,fmt.Sprintf("%s:%s", address, amount))
+		if _,ok  := addMap[address];ok{
+			amount,_ := decimal.NewFromString(coin.Amount.String())
+			rawTx.TxFrom = append(rawTx.TxFrom,fmt.Sprintf("%s:%s", address, amount))
+			feeTotal = feeTotal.Add(amount)
+		}
 
 	}
 
 	rawTx.IsSubmit = true
 	decimals := int32(decoder.wm.Decimal())
-	fees := rawTx.Fees
+	fees := feeTotal.String()
 
 	//记录一个交易单
 	owtx := &openwallet.Transaction{
@@ -293,6 +310,7 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 		AccountID:  rawTx.Account.AccountID,
 		Fees:       fees,
 		SubmitTime: time.Now().Unix(),
+
 		TxType:     0,
 	}
 
@@ -604,6 +622,8 @@ func (decoder *XchTransactionDecoder) createRawTransaction(wrapper openwallet.Wa
 	rawTx.TxFrom = txFrom
 	rawTx.TxTo = txTo
 
+	addStr := []string{addrBalance.Address,destination}
+
 	puzzleHash := EncodePuzzleHash(addrBalance.Address, decoder.wm.Config.Prefix)
 	unspent, err := decoder.wm.WalletClient.GetCoinRecordsByPuzzleHash(puzzleHash, false)
 	if err != nil {
@@ -643,6 +663,9 @@ func (decoder *XchTransactionDecoder) createRawTransaction(wrapper openwallet.Wa
 	if err != nil {
 		return openwallet.NewError(openwallet.ErrUnknownException, err.Error())
 	}
+
+	rawTrans.Address = addStr
+
 
 	rawHex, _ := json.Marshal(rawTrans)
 	if rawTx.Signatures == nil {
