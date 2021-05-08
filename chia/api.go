@@ -344,13 +344,14 @@ func (c *Client) GetAllMempoolItems() ([]*Coin, error) {
 
 
 // getUnspentBalance
-func (c *Client) GetMempoolByTxID(txID string) ([]*Coin, error) {
+func (c *Client) GetMempoolByTxID(txID string) ([]*Coin,[]*Coin, error) {
 	body2 := make(map[string]interface{})
 	body2["tx_id"] = txID
 	coins := make([]*Coin,0)
+	coin2s := make([]*Coin,0)
 	result, err := c.Call("get_all_mempool_items", body2)
 	if err != nil {
-		return coins, err
+		return coins,coin2s, err
 	}
 	if result.Get("mempool_items").Exists() {
 		body3 := make(map[string]*Mempool)
@@ -359,12 +360,13 @@ func (c *Client) GetMempoolByTxID(txID string) ([]*Coin, error) {
 			if len(body3) > 0{
 				for _,mem := range body3{
 					coins = append(coins, mem.Additions...)
+					coin2s = append(coin2s, mem.Removals...)
 				}
 			}
 		}
-		return coins, err
+		return coins,coin2s, err
 	}
-	return coins, nil
+	return coins,coin2s, nil
 }
 
 

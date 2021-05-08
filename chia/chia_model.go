@@ -46,13 +46,14 @@ type AddrBalance struct {
 }
 
 func (c *Coin) GetAddress(prefix string) string {
-	return DecodePuzzleHash(c.PuzzleHash,prefix)
+	return DecodePuzzleHash(c.PuzzleHash, prefix)
 }
 
 type RawTrans struct {
-	Bundle *Bundle  `json:"bundle"`
-	Msg    []string `json:"msg"`
-	TxID   string   `json:"tx_id"`
+	Bundle  *Bundle  `json:"bundle"`
+	Msg     []string `json:"msg"`
+	TxID    string   `json:"tx_id"`
+	Address []string `json:"address"`
 }
 
 type Bundle struct {
@@ -76,13 +77,10 @@ type BlockTrans struct {
 	BlockHash string        `json:"-"`
 }
 
-
 type Mempool struct {
 	Additions []*Coin `json:"additions"`
 	Removals  []*Coin `json:"removals"`
 }
-
-
 
 func (b *BlockTrans) GetCoinRecord() []*CoinRecord {
 	records := make([]*CoinRecord, 0)
@@ -105,7 +103,7 @@ func (b *BlockTrans) GetCoinRecord() []*CoinRecord {
 				continue
 			}
 			//排除找零交易
-			if _,ok := removals[a.Coin.PuzzleHash];ok{
+			if _, ok := removals[a.Coin.PuzzleHash]; ok {
 				continue
 			}
 			a.Type = 1

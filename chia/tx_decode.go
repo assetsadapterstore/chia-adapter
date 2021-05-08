@@ -235,7 +235,10 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 	targetTo := ""
 	for address, _ := range toMap {
 		targetTo = address
+		break
 	}
+	decoder.wm.Log.Errorf("targetTo, err=%v", string(targetTo))
+
 	targetPuzzle := EncodePuzzleHash(targetTo, decoder.wm.Config.Prefix)
 
 	//完成以上操作最终才进行提交
@@ -244,20 +247,35 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 		return nil, err
 	}
 
-	memCoins, err := decoder.wm.WalletClient.GetMempoolByTxID(rawTrans.TxID)
+	outputs,intpus, err := decoder.wm.WalletClient.GetMempoolByTxID(rawTrans.TxID)
 	if err != nil {
 		return nil, errors.New("submitRawTransaction error3,json error")
 	}
+
+	rawTx.TxTo = make([]string,0)
 	//把目标源的coinID填充进去
-	for _, coin := range memCoins {
+	for _, coin := range outputs {
+
+		//确定唯一ID
 		if coin.PuzzleHash == targetPuzzle {
 			newCoin, err := decoder.wm.WalletClientIn.GetCoinID(coin)
 			if err != nil {
 				return nil, errors.New(" Submit err,GetCoinID error, error:" + err.Error())
 			}
 			rawTx.TxID = newCoin.CoinID
-			break
 		}
+		address := DecodePuzzleHash(coin.PuzzleHash,decoder.wm.Config.Prefix)
+		amount,_ := decimal.NewFromString(coin.Amount.String())
+		rawTx.TxTo = append(rawTx.TxTo,fmt.Sprintf("%s:%s", address, amount))
+
+
+	}
+	rawTx.TxFrom = make([]string,0)
+	for _, coin := range intpus{
+		address := DecodePuzzleHash(coin.PuzzleHash,decoder.wm.Config.Prefix)
+		amount,_ := decimal.NewFromString(coin.Amount.String())
+		rawTx.TxFrom = append(rawTx.TxFrom,fmt.Sprintf("%s:%s", address, amount))
+
 	}
 
 	rawTx.IsSubmit = true
