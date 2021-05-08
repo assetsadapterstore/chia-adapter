@@ -765,12 +765,12 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 				txMain.WxID = wxIDIn
 				txExtractMap[tran.AccountID] = edInput
 				txExtractMap[tran.AccountID].Transaction = txMain
-
+				bs.wm.Log.Error("transactions finish, err=:",targetResult2.Exist)
 			}
 
 		}
 		if targetResult2.Exist {
-
+			bs.wm.Log.Error("targetResult2.Exist start")
 				tx.Coin = newCoin
 				output := &openwallet.TxOutPut{}
 				output.TxID = newCoin.CoinID
@@ -801,10 +801,14 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 					//Reason:      reason,
 					TxType: txType,
 				}
-				edOutput := openwallet.NewBlockExtractData()
-				edOutput.TxOutputs = append(edOutput.TxOutputs, output)
-				txExtractMap[targetResult2.SourceKey] = edOutput
+				ed := txExtractMap[targetResult2.SourceKey]
+				if ed == nil {
+					ed = openwallet.NewBlockExtractData()
+					txExtractMap[targetResult2.SourceKey] = ed
+				}
+			    ed.TxOutputs = append(ed.TxOutputs, output)
 				txExtractMap[targetResult2.SourceKey].Transaction = txMain
+			bs.wm.Log.Error("targetResult2.Exist start end :",txExtractMap[targetResult2.SourceKey])
 
 			}
 
