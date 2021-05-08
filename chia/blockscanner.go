@@ -698,6 +698,8 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 					intput.Address = fromArray[0]
 					from = fromArray[0]
 				}
+
+				bs.wm.Log.Warn("Get Transaction. current from:%v",from)
 				txMain.From =  []string{from + ":" + ethAmount}
 				intput.TxID = tx.Coin.CoinID
 				intput.Amount = ethAmount
@@ -729,7 +731,7 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 			ScanTargetType: uint64(scanType)})
 		if targetResult2.Exist {
 
-
+			bs.wm.Log.Warn("Charges Get Transaction. current from:%v",txMain.From[0])
 
 			ed := txExtractMap[targetResult2.SourceKey]
 			if ed == nil {
