@@ -279,6 +279,7 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 		address := DecodePuzzleHash(coin.PuzzleHash,decoder.wm.Config.Prefix)
 		if _,ok  := addMap[address];ok{
 			amount,_ := decimal.NewFromString(coin.Amount.String())
+			amount.Shift(-decoder.wm.Decimal())
 			feeTotal = feeTotal.Sub(amount)
 			rawTx.TxTo = append(rawTx.TxTo,fmt.Sprintf("%s:%s", address, amount))
 		}
@@ -289,6 +290,7 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 		address := DecodePuzzleHash(coin.PuzzleHash,decoder.wm.Config.Prefix)
 		if _,ok  := addMap[address];ok{
 			amount,_ := decimal.NewFromString(coin.Amount.String())
+			amount.Shift(-decoder.wm.Decimal())
 			rawTx.TxFrom = append(rawTx.TxFrom,fmt.Sprintf("%s:%s", address, amount))
 			feeTotal = feeTotal.Add(amount)
 		}
