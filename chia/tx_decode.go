@@ -557,6 +557,10 @@ func (decoder *XchTransactionDecoder) createRawTransactionSummary(wrapper openwa
 		return openwallet.NewError(openwallet.ErrUnknownException, err.Error())
 	}
 
+	addresses :=  make([]string,0)
+	addresses = append(addresses, from...)
+	addresses = append(addresses,destination )
+	rawTrans.Address = addresses
 	//bundle := rawTrans.Bundle
 	rawHex, _ := json.Marshal(rawTrans)
 	if rawTx.Signatures == nil {
