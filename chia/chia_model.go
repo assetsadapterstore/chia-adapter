@@ -103,9 +103,9 @@ func (b *BlockTrans) GetCoinRecord() []*CoinRecord {
 				continue
 			}
 			//排除找零交易
-			if _, ok := removals[a.Coin.PuzzleHash]; ok {
-				continue
-			}
+			//if _, ok := removals[a.Coin.PuzzleHash]; ok {
+			//	continue
+			//}
 			a.Type = 1
 			a.BlockHash = b.BlockHash
 			records = append(records, a)
