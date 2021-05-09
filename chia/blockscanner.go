@@ -519,7 +519,7 @@ func (bs *BlockScanner) GetBalanceByAddress(address ...string) ([]*openwallet.Ba
 		v.ConfirmBalance = amount.String()
 		v.UnconfirmBalance = decimal.Zero.String()
 		balances = append(balances, v)
-		bs.wm.Log.Warn("Balance Get Transaction. current to:%v",v.Address,",balance:",v.Balance)
+		//bs.wm.Log.Warn("Balance Get Transaction. current to:%v",v.Address,",balance:",v.Balance)
 	}
 
 	return balances, nil

@@ -143,7 +143,7 @@ func (c *ClientIn) CreateRawTransaction(hash string, amount uint64, fee uint64, 
 	body["prefix"] = c.Prefix
 	result, err := c.Call("create_raw_transaction", body)
 	if err != nil {
-		return nil, err
+		return nil,errors.New("create_raw_transaction error:"+err.Error())
 	}
 	if result == nil {
 		return nil, errors.New("create_raw_transaction error")

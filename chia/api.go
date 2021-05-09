@@ -309,7 +309,7 @@ func (c *Client) PutTx(Bundle *SendTrans) (bool, error) {
 	}
 	result, err := c.Call("push_tx", body2)
 	if err != nil {
-		return false, err
+		return false, errors.New("PutTx error:" + err.Error())
 	}
 	if result.Get("status").String() == "SUCCESS" {
 		return true, nil
