@@ -102,10 +102,12 @@ func (b *BlockTrans) GetCoinRecord() []*CoinRecord {
 			if a.Coin == nil {
 				continue
 			}
-			//排除找零交易
-			//if _, ok := removals[a.Coin.PuzzleHash]; ok {
-			//	continue
-			//}
+			//排除相同coinID
+			if r, ok := removals[a.Coin.PuzzleHash]; ok {
+				if a.Coin.ParentCoinInfo == r.Coin.ParentCoinInfo && a.Coin.Amount == r.Coin.Amount{
+					continue
+				}
+			}
 			a.Type = 1
 			a.BlockHash = b.BlockHash
 			records = append(records, a)
