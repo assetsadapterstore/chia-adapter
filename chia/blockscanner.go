@@ -623,7 +623,7 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 					Fees:        "",
 					Coin:        coin,
 					BlockHash:   tx.BlockHash,
-					BlockHeight: tx.ConfirmedBlockIndex,
+					BlockHeight: tx.SpentBlockIndex,
 					TxID:        txID,
 					Decimal:     bs.wm.Decimal(),
 					Amount:      xchAmount,
