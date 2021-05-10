@@ -65,7 +65,7 @@ func NewBlockScanner(wm *WalletManager) *BlockScanner {
 	bs.extractingCH = make(chan struct{}, MAX_EXTRACTING_SIZE)
 	bs.wm = wm
 	bs.IsScanMemPool = false
-	bs.RescanLastBlockCount = 5
+	bs.RescanLastBlockCount = 1
 
 	//设置扫描任务
 	bs.SetTask(bs.ScanBlockTask)
@@ -678,7 +678,6 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 				addresses := strings.Split(fromV, ":")
 				if len(addresses) == 2 {
 					edInput := openwallet.NewBlockExtractData()
-					bs.wm.Log.Error("addresses input from or to is nil:%s", fromV)
 					intput := &openwallet.TxInput{}
 					intput.TxID = tx.Coin.CoinID
 					intput.Address = addresses[0]
@@ -720,7 +719,6 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 
 		}
 		if targetResult2.Exist {
-			bs.wm.Log.Error("targetResult2.Exist start")
 			tx.Coin = newCoin
 			output := &openwallet.TxOutPut{}
 			output.TxID = newCoin.CoinID
@@ -758,7 +756,6 @@ func (bs *BlockScanner) extractTransaction(tx *CoinRecord) map[string]*openwalle
 			}
 			ed.TxOutputs = append(ed.TxOutputs, output)
 			txExtractMap[targetResult2.SourceKey].Transaction = txMain
-			bs.wm.Log.Error("targetResult2.Exist start end :", txExtractMap[targetResult2.SourceKey])
 
 		}
 

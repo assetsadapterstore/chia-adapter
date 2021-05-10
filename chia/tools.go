@@ -43,13 +43,19 @@ const GROUP_ORDER = "73EDA753299D7D483339D80809A1D80553BDA402FFFE5BFEFFFFFFFF000
 const DEFAULT_HIDDEN_PUZZLE_HASH = "711d6c4e32c92e53179b199484cf8c897542bc57f2b22582799f9d657eec4699"
 
 func chia_complement_bytes_to_bigint(data []byte) *big.Int {
-	if data[0]&0x80 == 0 {
+	if data[0] & 0x80 == 0 {
 		return new(big.Int).SetBytes(data)
 	}
 	data[0] &= 0x7F
 	data_big := new(big.Int).SetBytes(data)
 	data_big = data_big.Sub(data_big, big.NewInt(1))
 	data_bytes := data_big.Bytes()
+	data_bytes_len := len(data_bytes)
+	if data_bytes_len < 32 {
+		for i := 0; i < 32 -data_bytes_len; i ++ {
+			data_bytes = append([]byte{0}, data_bytes...)
+		}
+	}
 	for i, _ := range data_bytes {
 		data_bytes[i] ^= 0xFF
 	}

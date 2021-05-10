@@ -181,7 +181,14 @@ func (decoder *XchTransactionDecoder) SignRawTransaction(wrapper openwallet.Wall
 			return err
 		}
 		key2 := Calculate_synthetic_secret_key(keyBytes)
-		signature, _, sigErr := owcrypt.Signature(key2, nil, message, decoder.wm.CurveType())
+		newKey := make([]byte,0)
+		if len(key2) != 32{
+			for i:=0 ;i< 32 - len(key2) ;i++{
+				newKey = append(newKey, 0)
+			}
+		}
+		newKey = append(newKey, key2...)
+		signature, _, sigErr := owcrypt.Signature(newKey, nil, message, decoder.wm.CurveType())
 		if sigErr != owcrypt.SUCCESS {
 			return fmt.Errorf("transaction hash sign failed")
 		}
