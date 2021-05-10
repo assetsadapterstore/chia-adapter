@@ -490,31 +490,34 @@ func (decoder *XchTransactionDecoder) CreateSimpleSummaryRawTransaction(wrapper 
 	fee := decoder.wm.Config.SummaryFee
 	decoder.wm.Log.Debugf("totalAmount: %v", totalAmount)
 	decoder.wm.Log.Debugf("fee: %v", fee)
-	//创建一笔交易单
-	rawTx := &openwallet.RawTransaction{
-		Coin:    sumRawTx.Coin,
-		Account: sumRawTx.Account,
-		To: map[string]string{
-			sumRawTx.SummaryAddress: totalAmount.String(),
-		},
-		Required: 1,
+	decimalFee,_ := decimal.NewFromString(fee)
+
+	if len(coinRecordList) >0 && totalAmount.GreaterThan(decimalFee) {
+		//创建一笔交易单
+		rawTx := &openwallet.RawTransaction{
+			Coin:    sumRawTx.Coin,
+			Account: sumRawTx.Account,
+			To: map[string]string{
+				sumRawTx.SummaryAddress: totalAmount.String(),
+			},
+			Required: 1,
+		}
+
+		createTxErr := decoder.createRawTransactionSummary(
+			wrapper,
+			rawTx,
+			coinRecordList,
+			from,
+			fee,
+		)
+		rawTxWithErr := &openwallet.RawTransactionWithError{
+			RawTx: rawTx,
+			Error: createTxErr,
+		}
+
+		//创建成功，添加到队列
+		rawTxArray = append(rawTxArray, rawTxWithErr)
 	}
-
-	createTxErr := decoder.createRawTransactionSummary(
-		wrapper,
-		rawTx,
-		coinRecordList,
-		from,
-		fee,
-	)
-	rawTxWithErr := &openwallet.RawTransactionWithError{
-		RawTx: rawTx,
-		Error: createTxErr,
-	}
-
-	//创建成功，添加到队列
-	rawTxArray = append(rawTxArray, rawTxWithErr)
-
 	return rawTxArray, nil
 }
 
