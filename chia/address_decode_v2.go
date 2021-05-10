@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"github.com/blocktree/go-owcdrivers/addressEncoder"
 	"github.com/blocktree/openwallet/v2/openwallet"
+	"strings"
 )
 
 var (
@@ -49,6 +50,9 @@ func (dec *AddressDecoderV2) AddressEncode(hash []byte, opts ...interface{}) (st
 
 // AddressVerify 地址校验
 func (dec *AddressDecoderV2) AddressVerify(address string, opts ...interface{}) bool {
+	if !strings.HasPrefix(address,dec.wm.Config.Prefix){
+		return false
+	}
 	_,err := EncodePuzzleHashErr(address,dec.wm.Config.Prefix)
 	if err != nil{
 		return false
