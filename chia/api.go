@@ -36,10 +36,20 @@ type Client struct {
 	Prefix string
 }
 
-func (c *Client) GetBlockState() (*gjson.Result, error) {
+func (c *Client) GetBlockState() bool {
 	body := make(map[string]interface{}, 0)
 	result, err := c.Call("get_blockchain_state", body)
-	return result, err
+	if err != nil{
+		return false
+	}
+	if result.Get("blockchain_state").Exists(){
+		if result.Get("blockchain_state").Get("sync").Exists(){
+			if result.Get("blockchain_state").Get("sync").Get("synced").Bool() {
+				return true
+			}
+		}
+	}
+	return false
 
 }
 

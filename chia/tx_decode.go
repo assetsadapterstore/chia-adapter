@@ -53,6 +53,10 @@ func (decoder *XchTransactionDecoder) CreateSimpleRawTransaction(wrapper openwal
 		findAddrBalance *AddrBalance
 	)
 
+	if !decoder.wm.WalletClient.GetBlockState(){
+		return openwallet.Errorf(openwallet.ErrUnknownException, "Not synced. Please wait for the node to sync and try again.")
+	}
+
 	//获取wallet
 	addresses, err := wrapper.GetAddressList(0, -1,
 		"AccountID", accountID)
