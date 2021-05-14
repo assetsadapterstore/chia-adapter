@@ -3,6 +3,7 @@ package chia
 import (
 	"encoding/json"
 	"github.com/blocktree/openwallet/v2/openwallet"
+	"github.com/shopspring/decimal"
 	"math/big"
 )
 
@@ -107,6 +108,11 @@ func (b *BlockTrans) GetCoinRecord() []*CoinRecord {
 				if a.Coin.ParentCoinInfo == r.Coin.ParentCoinInfo && a.Coin.Amount == r.Coin.Amount{
 					continue
 				}
+			}
+			amount,_ := decimal.NewFromString(a.Coin.Amount.String())
+			minAmount := decimal.NewFromInt(100000)
+			if amount.LessThan(minAmount){
+				continue
 			}
 			a.Type = 1
 			a.BlockHash = b.BlockHash

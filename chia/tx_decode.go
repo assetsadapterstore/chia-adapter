@@ -275,6 +275,22 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 	//把目标源的coinID填充进去
 	for _, coin := range outputs {
 
+		//if coin.PuzzleHash == targetPuzzle {
+		//	newCoin, err := decoder.wm.WalletClientIn.GetCoinID(coin)
+		//	if err != nil {
+		//		return nil, errors.New(" Submit err,GetCoinID error, error:" + err.Error())
+		//	}
+		//	amountCoin,_ := decimal.NewFromString(coin.Amount.String())
+		//	nowAmount,_ := decimal.NewFromString(amount)
+		//	amountCoin = amountCoin.Shift(-decoder.wm.Decimal())
+		//	if amountCoin.Equal(nowAmount){
+		//		rawTx.TxID = newCoin.CoinID
+		//		address := DecodePuzzleHash(coin.PuzzleHash,decoder.wm.Config.Prefix)
+		//		rawTx.TxTo = []string{fmt.Sprintf("%s:%s", address, amount)}
+		//	}
+		//
+		//}
+
 		//确定唯一ID
 		if coin.PuzzleHash == targetPuzzle {
 			newCoin, err := decoder.wm.WalletClientIn.GetCoinID(coin)
@@ -285,13 +301,7 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 			address := DecodePuzzleHash(coin.PuzzleHash,decoder.wm.Config.Prefix)
 			rawTx.TxTo = []string{fmt.Sprintf("%s:%s", address, amount)}
 		}
-		//address := DecodePuzzleHash(coin.PuzzleHash,decoder.wm.Config.Prefix)
-		//if _,ok  := addMap[address];ok{
-		//	amount,_ := decimal.NewFromString(coin.Amount.String())
-		//	amount = amount.Shift(-decoder.wm.Decimal())
-		//	feeTotal = feeTotal.Sub(amount)
-		//	rawTx.TxTo = append(rawTx.TxTo,fmt.Sprintf("%s:%s", address, amount))
-		//}
+
 
 	}
 
@@ -555,9 +565,9 @@ func (decoder *XchTransactionDecoder) createRawTransactionSummary(wrapper openwa
 	rawTx.TxFrom = from
 	rawTx.TxTo = txTo
 
-	maxPrice, _ := decimal.NewFromString("18446744073709551615")
+	maxPrice, _ := decimal.NewFromString("9000000")
 	if accountTotalSent.GreaterThanOrEqual(maxPrice) {
-		return openwallet.NewError(openwallet.ErrAccountNotAddress, "over max 18446744073709551615")
+		return openwallet.NewError(openwallet.ErrAccountNotAddress, "over max 9000000")
 	}
 
 	//totalSentInt := uint64(accountTotalSent.Shift(decoder.wm.Decimal()).IntPart())
