@@ -65,7 +65,7 @@ func NewBlockScanner(wm *WalletManager) *BlockScanner {
 	bs.extractingCH = make(chan struct{}, MAX_EXTRACTING_SIZE)
 	bs.wm = wm
 	bs.IsScanMemPool = false
-	bs.RescanLastBlockCount = 0
+	bs.RescanLastBlockCount = 1
 
 	//设置扫描任务
 	bs.SetTask(bs.ScanBlockTask)
@@ -306,9 +306,9 @@ func (bs *BlockScanner) ScanBlockTask() {
 	}
 
 	//重扫前N个块，为保证记录找到
-	//for i := curBlockHeight - bs.RescanLastBlockCount; i <= curBlockHeight; i++ {
-	//	bs.scanBlock(i)
-	//}
+	for i := curBlockHeight - bs.RescanLastBlockCount; i <= curBlockHeight; i++ {
+		bs.scanBlock(i)
+	}
 
 	bs.RescanFailedRecord()
 }

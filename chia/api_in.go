@@ -102,6 +102,18 @@ func (c *ClientIn) GetCoinID(Coin2 *Coin) (*Coin, error) {
 
 }
 
+
+func (c *ClientIn) GetLastBlockIn() (*gjson.Result, error) {
+	body := make(map[string]interface{}, 0)
+	result, err := c.Call("get_blockchain_state", body)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, err
+
+}
+
 func (c *ClientIn) CreateSummaryRawTransaction(pubs []string, coinRecord []*CoinRecord, to string, fee uint64) (*RawTrans, error) {
 
 	body := make(map[string]interface{}, 0)
