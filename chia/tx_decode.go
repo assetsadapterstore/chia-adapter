@@ -263,49 +263,35 @@ func (decoder *XchTransactionDecoder) SubmitRawTransaction(wrapper openwallet.Wa
 		return nil, err
 	}
 
-	outputs,_, err := decoder.wm.WalletClient.GetMempoolByTxID(rawTrans.TxID)
+	outputs, _, err := decoder.wm.WalletClient.GetMempoolByTxID(rawTrans.TxID)
 	if err != nil {
 		return nil, errors.New("submitRawTransaction error3,json error")
 	}
 
-	rawTx.TxTo = make([]string,0)
+	rawTx.TxTo = make([]string, 0)
 	feeTotal := decimal.Zero
-
 
 	//把目标源的coinID填充进去
 	for _, coin := range outputs {
 
-		//if coin.PuzzleHash == targetPuzzle {
-		//	newCoin, err := decoder.wm.WalletClientIn.GetCoinID(coin)
-		//	if err != nil {
-		//		return nil, errors.New(" Submit err,GetCoinID error, error:" + err.Error())
-		//	}
-		//	amountCoin,_ := decimal.NewFromString(coin.Amount.String())
-		//	nowAmount,_ := decimal.NewFromString(amount)
-		//	amountCoin = amountCoin.Shift(-decoder.wm.Decimal())
-		//	if amountCoin.Equal(nowAmount){
-		//		rawTx.TxID = newCoin.CoinID
-		//		address := DecodePuzzleHash(coin.PuzzleHash,decoder.wm.Config.Prefix)
-		//		rawTx.TxTo = []string{fmt.Sprintf("%s:%s", address, amount)}
-		//	}
-		//
-		//}
+		amountCoin, _ := decimal.NewFromString(coin.Amount.String())
+		nowAmount, _ := decimal.NewFromString(amount)
+		amountCoin = amountCoin.Shift(-decoder.wm.Decimal())
 
 		//确定唯一ID
-		if coin.PuzzleHash == targetPuzzle {
+		if coin.PuzzleHash == targetPuzzle && amountCoin.Equal(nowAmount) {
 			newCoin, err := decoder.wm.WalletClientIn.GetCoinID(coin)
 			if err != nil {
 				return nil, errors.New(" Submit err,GetCoinID error, error:" + err.Error())
 			}
 			rawTx.TxID = newCoin.CoinID
-			address := DecodePuzzleHash(coin.PuzzleHash,decoder.wm.Config.Prefix)
+			address := DecodePuzzleHash(coin.PuzzleHash, decoder.wm.Config.Prefix)
 			rawTx.TxTo = []string{fmt.Sprintf("%s:%s", address, amount)}
 		}
 
-
 	}
 
-	if len(rawTrans.Address) == 1{
+	if len(rawTrans.Address) == 1 {
 		rawTx.TxFrom = []string{fmt.Sprintf("%s:%s", rawTrans.Address[0], amount)}
 	}
 
